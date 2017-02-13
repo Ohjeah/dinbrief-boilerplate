@@ -1,7 +1,7 @@
 ---
 author: .
 phone: .
-city: Potsdam
+city: .
 addr:
 - .
 - .
