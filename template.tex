@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{dinbrief}
+\usepackage{fontspec}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx}
+
+
+% Trim excessive whitespace before lists
+\usepackage{enumitem}
+\setlist{nolistsep}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{xcolor}
+\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
+\hypersetup
+  {
+    pdfauthor={$author$},
+    pdfsubject={$subject$},
+    pdftitle={$subject$},
+    colorlinks,breaklinks,
+    filecolor=black,
+    urlcolor=[rgb]{0.117,0.682,0.858},
+    linkcolor=[rgb]{0.117,0.682,0.858},
+    linkcolor=[rgb]{0.117,0.682,0.858},
+    citecolor=[rgb]{0.117,0.682,0.858},
+  }
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\phone{}{$phone$}
+\address{
+$for(addr)$
+$addr$\\
+$endfor$
+}
+\backaddress{
+$for(addr)$
+$addr$,
+$endfor$
+}
+
+\signature{$author$}
+\place{$city$}
+
+$if(sign)$
+\sign{$sign$}
+$endif$
+
+$if(yourmail)$
+\yourmail{$yourmail$}
+$endif$
+
+\begin{document}
+
+\subject{\textbf{$subject$}}
+
+\begin{letter}{
+$to_name$ \\
+$to_street$ \\[\medskipamount]
+$to_city$}
+
+\opening{$opening$}
+\Datum{\today}
+
+$body$
+
+
+
+ \IfFileExists{signature.pdf}
+{
+    \closing[{\includegraphics[scale=1]{signature.pdf}}]{$closing$}
+}
+{
+    \closing[]{$closing$}
+}
+
+\end{letter}
+\end{document}
