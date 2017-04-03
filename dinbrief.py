@@ -35,13 +35,14 @@ def get_config():
 
 
 @click.command()
-@click.option("--md", default="letter.md")
-def compile_letter(md, pdf="output.pdf"):
+@click.argument("md")
+@click.option("--pdf", default=None)
+def compile_letter(md, pdf):
+    if pdf is None:
+        pdf = os.path.splitext(md)[0] + ".pdf"
     config = get_config()
     cmd = "{compiler} {defaults} {md} -o {pdf} --template={template}  {flags} -M signature={signature}".format(md=md, pdf=pdf, **config)
-    print(cmd)
     c = delegator.run(cmd)
-    print(c.out)
 
 
 @click.command()
@@ -52,7 +53,6 @@ def create_defaults():
 
     if not os.path.exists(tpath):
         delegator.run("cp {template} {tpath}".format(cdir=CONFIG_DIR, tpath=tpath))
-
 
     dpath = os.path.join(CONFIG_DIR, "defaults.yml")
     if not os.path.exists(dpath):
