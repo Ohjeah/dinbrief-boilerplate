@@ -12,21 +12,17 @@ DEFAULTS = {
     "compiler": "pandoc",
     "flags": "--latex-engine=xelatex",
     "template": os.path.join(THIS_DIR, "template.tex"),
-    "signature": "signatur.pdf",
+    "defaults": os.path.join(THIS_DIR, "defaults.yml")
 }
 
 def get_config():
     user_dir = os.path.expanduser("~")
     user_config = {}
     user_template = os.path.join(CONFIG_DIR, "template.tex")
-    user_signatur = os.path.join(CONFIG_DIR, "signature.pdf")
     user_defaults = os.path.join(CONFIG_DIR, "defaults.yml")
 
     if os.path.exists(user_template):
         user_config["template"] = user_template
-
-    if os.path.exists(user_template):
-        user_config["signature"] = user_signatur
 
     if os.path.exists(user_template):
         user_config["defaults"] = user_defaults
@@ -41,7 +37,7 @@ def compile_letter(md, pdf):
     if pdf is None:
         pdf = os.path.splitext(md)[0] + ".pdf"
     config = get_config()
-    cmd = "{compiler} {defaults} {md} -o {pdf} --template={template}  {flags} -M signature={signature}".format(md=md, pdf=pdf, **config)
+    cmd = "{compiler} {defaults} {md} -o {pdf} --template={template} {flags} ".format(md=md, pdf=pdf, **config)
     c = delegator.run(cmd)
 
 
