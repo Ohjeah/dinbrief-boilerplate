@@ -29,8 +29,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'dinbrief = dinbrief:compile_letter',
-            'dinbrief-defaults = dinbrief:create_defaults'
+            'dinbrief = dinbrief:cli',
         ]
         }
 )

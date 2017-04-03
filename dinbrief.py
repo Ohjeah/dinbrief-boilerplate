@@ -30,10 +30,15 @@ def get_config():
     return ChainMap(user_config, DEFAULTS)
 
 
-@click.command()
-@click.argument("md")
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option("--md", default="letter.md")
 @click.option("--pdf", default=None)
-def compile_letter(md, pdf):
+def compile(md, pdf):
     if pdf is None:
         pdf = os.path.splitext(md)[0] + ".pdf"
     config = get_config()
@@ -41,7 +46,7 @@ def compile_letter(md, pdf):
     c = delegator.run(cmd)
 
 
-@click.command()
+@cli.command()
 def create_defaults():
     delegator.run("mkdir -p {}".format(CONFIG_DIR))
 
@@ -53,6 +58,13 @@ def create_defaults():
     dpath = os.path.join(CONFIG_DIR, "defaults.yml")
     if not os.path.exists(dpath):
         delegator.run("cp {defaults} {dpath}".format(cdir=CONFIG_DIR, dpath=dpath))
+
+
+@cli.command()
+@click.option("--dir", default=os.path.curdir)
+def copy(dir):
+    delegator.run("cp {letter} {dir}".format(letter=os.path.join(THIS_DIR, "letter.md"), dir=dir))
+
 
 
 if __name__ == '__main__':
