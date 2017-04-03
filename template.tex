@@ -66,10 +66,9 @@ $to_city$}
 $body$
 
 
-
- \IfFileExists{signature.pdf}
+ \IfFileExists{$signature$}
 {
-    \closing[{\includegraphics[scale=1]{signature.pdf}}]{$closing$}
+    \closing[{\includegraphics[scale=1]{$signature$}}]{$closing$}
 }
 {
     \closing[]{$closing$}

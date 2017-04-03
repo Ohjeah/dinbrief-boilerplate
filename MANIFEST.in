@@ -1,0 +1,2 @@
+include template.tex
+include defaults.yml
