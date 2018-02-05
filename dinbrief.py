@@ -10,9 +10,8 @@ CONFIG_DIR =  os.path.join(os.path.expanduser("~"), ".config/dinbrief")
 
 DEFAULTS = {
     "compiler": "pandoc",
-    "flags": "--latex-engine=xelatex",
+    "flags": "--pdf-engine=xelatex",
     "template": os.path.join(THIS_DIR, "template.tex"),
-    "defaults": os.path.join(THIS_DIR, "defaults.yml")
 }
 
 def get_config():
@@ -42,8 +41,10 @@ def compile(md, pdf):
     if pdf is None:
         pdf = os.path.splitext(md)[0] + ".pdf"
     config = get_config()
-    cmd = "{compiler} {defaults} {md} -o {pdf} --template={template} {flags} ".format(md=md, pdf=pdf, **config)
+    cmd = "{compiler} {md} -o {pdf} --template={template} {flags} ".format(md=md, pdf=pdf, **config)
+    print(cmd)
     c = delegator.run(cmd)
+    print(c.out)
 
 
 @cli.command()
@@ -54,10 +55,6 @@ def create_defaults():
 
     if not os.path.exists(tpath):
         delegator.run("cp template.tex {tpath}".format(cdir=CONFIG_DIR, tpath=tpath))
-
-    dpath = os.path.join(CONFIG_DIR, "defaults.yml")
-    if not os.path.exists(dpath):
-        delegator.run("cp defaults.yml {dpath}".format(cdir=CONFIG_DIR, dpath=dpath))
 
 
 @cli.command()
