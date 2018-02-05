@@ -53,11 +53,11 @@ def create_defaults():
     tpath = os.path.join(CONFIG_DIR, "template.tex")
 
     if not os.path.exists(tpath):
-        delegator.run("cp {template} {tpath}".format(cdir=CONFIG_DIR, tpath=tpath))
+        delegator.run("cp template.tex {tpath}".format(cdir=CONFIG_DIR, tpath=tpath))
 
     dpath = os.path.join(CONFIG_DIR, "defaults.yml")
     if not os.path.exists(dpath):
-        delegator.run("cp {defaults} {dpath}".format(cdir=CONFIG_DIR, dpath=dpath))
+        delegator.run("cp defaults.yml {dpath}".format(cdir=CONFIG_DIR, dpath=dpath))
 
 
 @cli.command()
