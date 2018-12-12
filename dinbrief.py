@@ -6,13 +6,14 @@ import click
 import delegator
 
 THIS_DIR = os.path.dirname(__file__)
-CONFIG_DIR =  os.path.join(os.path.expanduser("~"), ".config/dinbrief")
+CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config/dinbrief")
 
 DEFAULTS = {
     "compiler": "pandoc",
     "flags": "--pdf-engine=xelatex",
     "template": os.path.join(THIS_DIR, "template.tex"),
 }
+
 
 def get_config():
     user_dir = os.path.expanduser("~")
@@ -41,7 +42,10 @@ def compile(md, pdf):
     if pdf is None:
         pdf = os.path.splitext(md)[0] + ".pdf"
     config = get_config()
-    cmd = "{compiler} {md} -o {pdf} --template={template} {flags} ".format(md=md, pdf=pdf, **config)
+    print(config)
+    cmd = "{compiler} {md} -o {pdf} --template={template} {defaults} {flags} ".format(
+        md=md, pdf=pdf, **config
+    )
     print(cmd)
     c = delegator.run(cmd)
     print(c.out)
@@ -60,9 +64,10 @@ def create_defaults():
 @cli.command()
 @click.option("--dir", default=os.path.curdir)
 def copy(dir):
-    delegator.run("cp {letter} {dir}".format(letter=os.path.join(THIS_DIR, "letter.md"), dir=dir))
+    delegator.run(
+        "cp {letter} {dir}".format(letter=os.path.join(THIS_DIR, "letter.md"), dir=dir)
+    )
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

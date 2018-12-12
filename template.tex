@@ -1,47 +1,91 @@
-\documentclass[11pt,a4paper]{dinbrief}
+\documentclass[$fontsize$,a4paper]{dinbrief}
 \usepackage{fontspec}
-\usepackage[utf8]{inputenc}
+
 \usepackage[ngerman]{babel}
 \usepackage{graphicx}
 
+
+% TYPOGRAPHY
+%--------------------------------
+\usepackage{xunicode}
+\usepackage{eurosym}
+\usepackage{xltxtra}
+\usepackage[protrusion=true,final]{microtype}
+
+% converts LaTeX specials (quotes, dashes etc.) to Unicode
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{$mainfont$}
+\setsansfont[Scale=0.9]{$altfont$}
+\setmonofont[Scale=0.8]{$monofont$}
+
+% Set paragraph break
+\setlength{\parskip}{1em}
+
+% Custom ampersand
+\newcommand{\amper}{{\fontspec[Scale=.95]{$mainfont$}\selectfont\itshape\&}}
+
+$if(mainfont)$
+    \setmainfont{$mainfont$}
+$endif$
+$if(altfont)$
+    \setsansfont{$altfont$}
+$endif$
+\renewcommand{\familydefault}{\rmdefault}
+
+% PDF SETUP
+%--------------------------------
+\usepackage{xcolor}
+\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
+\hypersetup
+{
+  pdfauthor={$author$},
+  pdfsubject={$subject$},
+  pdftitle={$subject$},
+  colorlinks,breaklinks,
+  filecolor=black,
+  urlcolor=[rgb]{0.117,0.682,0.858},
+  linkcolor=[rgb]{0.117,0.682,0.858},
+  linkcolor=[rgb]{0.117,0.682,0.858},
+  citecolor=[rgb]{0.117,0.682,0.858}
+}
+
+% To display custom date in the example
+$if(customdate)$
+\usepackage[$lang$]{datetime2}
+\DTMsavedate{customdate}{$customdate$}
+$endif$
 
 % Trim excessive whitespace before lists
 \usepackage{enumitem}
 \setlist{nolistsep}
 
+% Command required by how Pandoc handles the list conversion
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\usepackage{xcolor}
-\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
-\hypersetup
-  {
-    pdfauthor={$author$},
-    pdfsubject={$subject$},
-    pdftitle={$subject$},
-    colorlinks,breaklinks,
-    filecolor=black,
-    urlcolor=[rgb]{0.117,0.682,0.858},
-    linkcolor=[rgb]{0.117,0.682,0.858},
-    linkcolor=[rgb]{0.117,0.682,0.858},
-    citecolor=[rgb]{0.117,0.682,0.858},
-  }
 
-\renewcommand{\familydefault}{\sfdefault}
+% \renewcommand{\familydefault}{\sfdefault}
 
-\phone{}{$phone$}
 \address{
+\textsf{$author$\\
 $for(addr)$
 $addr$\\
 $endfor$
-}
+}}
+\centeraddress
+
 \backaddress{
+\textsc{$author$}
 $for(addr)$
-$addr$,
+\textbullet{} \textsc{$addr$}
 $endfor$
 }
 
 \signature{$author$}
 \place{$city$}
+
+$if(phone)$
+\phone{}{$phone$}
+$endif$
 
 $if(sign)$
 \sign{$sign$}
@@ -51,17 +95,26 @@ $if(yourmail)$
 \yourmail{$yourmail$}
 $endif$
 
+$if(nowindowtics)$
+\nowindowtics
+$endif$
+
+$if(nowindowrules)$
+\nowindowrules
+\makelabels
+$endif$
+
 \begin{document}
 
 \subject{\textbf{$subject$}}
 
 \begin{letter}{
-$to_name$ \\
+\textsf{$to_name$ \\
 $to_street$ \\[\medskipamount]
-$to_city$}
+$to_city$}}
 
 \opening{$opening$}
-\Datum{\today}
+\Datum{$if(customdate)$\DTMusedate{customdate}$else$\today$endif$}
 
 $body$
 
@@ -73,6 +126,18 @@ $body$
 {
     \closing[]{$closing$}
 }
+
+$if(ps)$
+\ps{$ps$}
+$endif$
+
+$if(encl)$
+\encl{$encl$}
+$endif$
+
+$if(cc)$
+\cc{$cc$}
+$endif$
 
 \end{letter}
 \end{document}
