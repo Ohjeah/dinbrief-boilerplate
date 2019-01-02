@@ -1,72 +1,110 @@
+import logging
 import os
+import pathlib
 from collections import ChainMap
 
-import yaml
 import click
+import click_log
+import crayons
 import delegator
+import yaml
+from click_default_group import DefaultGroup
+from halo import Halo
 
-THIS_DIR = os.path.dirname(__file__)
-CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config/dinbrief")
+__version__ = "0.1.0"
 
-DEFAULTS = {
-    "compiler": "pandoc",
-    "flags": "--pdf-engine=xelatex",
-    "template": os.path.join(THIS_DIR, "template.tex"),
+THIS_DIR = pathlib.Path(__file__).parent
+CONFIG_DIR = pathlib.Path.home() / ".config/dinbrief"
+
+DEFAULTS = {"compiler": "pandoc", "flags": "--pdf-engine=xelatex", "template": THIS_DIR / "template.tex"}
+
+logger = logging.getLogger("dinbrief")
+click_log.basic_config(logger)
+
+LOG_LEVELS = {
+    "fatal": logging.CRITICAL,
+    "error": logging.ERROR,
+    "warn": logging.WARNING,
+    "info": logging.INFO,
+    "debug": logging.DEBUG,
 }
+
+def log(msg, level="info"):
+    colors = {
+    "debug": crayons.yellow,
+    "error": crayons.red,
+    }
+    fmter = colors.get(level, crayons.black)
+    logger.log(LOG_LEVELS.get(level, 0), fmter(msg))
 
 
 def get_config():
-    user_dir = os.path.expanduser("~")
+    user_dir = pathlib.Path.home()
     user_config = {}
-    user_template = os.path.join(CONFIG_DIR, "template.tex")
-    user_defaults = os.path.join(CONFIG_DIR, "defaults.yml")
+    user_template = CONFIG_DIR / "template.tex"
+    user_defaults = CONFIG_DIR / "defaults.yml"
 
-    if os.path.exists(user_template):
+    if user_template.exists():
         user_config["template"] = user_template
 
-    if os.path.exists(user_template):
+    if user_defaults.exists():
         user_config["defaults"] = user_defaults
 
-    return ChainMap(user_config, DEFAULTS)
+    config = ChainMap(user_config, DEFAULTS)
+    log("Using config:", "debug")
+    for k, v in sorted(config.items()):
+        log(f"\t{k}:\t{v}", "debug")
+    return config
 
 
-@click.group()
+@click.group(cls=DefaultGroup, default="compile", default_if_no_args=True)
+@click_log.simple_verbosity_option(logger)
 def cli():
     pass
+
+def run(cmd, text=""):
+    text = text or f"Running {cmd.split(' ')[0]}"
+    with Halo(text=text, spinner="dots") as spinner:
+        log("Running:", "debug")
+        log(f"\t$ {cmd}", "debug")
+        c = delegator.run(cmd)
+        if c.out:
+            log(c.out)
+        if c.err:
+            log(c.err, "error")
+            spinner.fail()
+        else:
+            spinner.succeed()
 
 
 @cli.command()
 @click.option("--md", default="letter.md")
 @click.option("--pdf", default=None)
-def compile(md, pdf):
+@click.pass_context
+def compile(ctx, md, pdf):
     if pdf is None:
-        pdf = os.path.splitext(md)[0] + ".pdf"
+        pdf = pathlib.Path(md).with_suffix(".pdf")
+
     config = get_config()
-    print(config)
-    cmd = "{compiler} {md} -o {pdf} --template={template} {defaults} {flags} ".format(
-        md=md, pdf=pdf, **config
-    )
-    print(cmd)
-    c = delegator.run(cmd)
-    print(c.out)
+    cmd = "{compiler} {md} -o {pdf} --template={template} {defaults} {flags}".format(md=md, pdf=pdf, **config)
+    run(cmd, text=f"Compiling {md}")
 
 
 @cli.command()
 def create_defaults():
-    delegator.run("mkdir -p {}".format(CONFIG_DIR))
-
-    tpath = os.path.join(CONFIG_DIR, "template.tex")
-
-    if not os.path.exists(tpath):
-        delegator.run("cp template.tex {tpath}".format(cdir=CONFIG_DIR, tpath=tpath))
+    pathlib.Path(CONFIG_DIR).mkdir(exist_ok=True, parents=True)
+    tpath = CONFIG_DIR / "template.tex"
+    if not tpath.exists():
+        cmd = f"cp {DEFAULTS['template']} {tpath}"
+        run(cmd)
 
 
 @cli.command()
 @click.option("--dir", default=os.path.curdir)
 def copy(dir):
-    delegator.run(
-        "cp {letter} {dir}".format(letter=os.path.join(THIS_DIR, "letter.md"), dir=dir)
-    )
+    letter = THIS_DIR / "letter.md"
+    cmd = f"cp {letter} {dir}"
+    run(cmd)
 
 
 if __name__ == "__main__":

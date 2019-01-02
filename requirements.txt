@@ -1,3 +1,7 @@
 delegator.py
 click
 pyyaml
+click_log
+click_default_group
+halo
+crayons
