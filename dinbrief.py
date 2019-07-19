@@ -16,7 +16,12 @@ __version__ = "0.1.0"
 THIS_DIR = pathlib.Path(__file__).parent
 CONFIG_DIR = pathlib.Path.home() / ".config/dinbrief"
 
-DEFAULTS = {"compiler": "pandoc", "flags": "--pdf-engine=xelatex", "template": THIS_DIR / "template.tex"}
+DEFAULTS = {
+    "compiler": "pandoc",
+    "flags": "--pdf-engine=xelatex",
+    "template": THIS_DIR / "template.tex",
+    "letter": THIS_DIR / "letter.md",
+}
 
 logger = logging.getLogger("dinbrief")
 click_log.basic_config(logger)
@@ -29,28 +34,34 @@ LOG_LEVELS = {
     "debug": logging.DEBUG,
 }
 
+
 def log(msg, level="info"):
-    colors = {
-    "debug": crayons.yellow,
-    "error": crayons.red,
-    }
+    colors = {"debug": crayons.yellow, "error": crayons.red}
     fmter = colors.get(level, crayons.black)
     logger.log(LOG_LEVELS.get(level, 0), fmter(msg))
 
 
 def get_config():
-    user_dir = pathlib.Path.home()
-    user_config = {}
-    user_template = CONFIG_DIR / "template.tex"
-    user_defaults = CONFIG_DIR / "defaults.yml"
+    def _dir_config(dir):
+        config = {}
+        user_template = dir / "template.tex"
+        user_defaults = dir / "defaults.yml"
+        letter = dir / "letter.md"
 
-    if user_template.exists():
-        user_config["template"] = user_template
+        if user_template.exists():
+            config["template"] = user_template
 
-    if user_defaults.exists():
-        user_config["defaults"] = user_defaults
+        if user_defaults.exists():
+            config["defaults"] = user_defaults
 
-    config = ChainMap(user_config, DEFAULTS)
+        if letter.exists():
+            config["letter"] = letter
+        return config
+
+    local_config = _dir_config(pathlib.Path.cwd())
+    user_config = _dir_config(pathlib.Path.home() / ".config/dinbrief")
+
+    config = ChainMap(local_config, user_config, DEFAULTS)
     log("Using config:", "debug")
     for k, v in sorted(config.items()):
         log(f"\t{k}:\t{v}", "debug")
@@ -61,6 +72,7 @@ def get_config():
 @click_log.simple_verbosity_option(logger)
 def cli():
     pass
+
 
 def run(cmd, text=""):
     text = text or f"Running {cmd.split(' ')[0]}"
@@ -102,7 +114,7 @@ def create_defaults():
 @cli.command()
 @click.option("--dir", default=os.path.curdir)
 def copy(dir):
-    letter = THIS_DIR / "letter.md"
+    letter = get_config()["letter"]
     cmd = f"cp {letter} {dir}"
     run(cmd)
 
