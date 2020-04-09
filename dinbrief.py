@@ -98,7 +98,7 @@ def compile(ctx, md, pdf):
         pdf = pathlib.Path(md).with_suffix(".pdf")
 
     config = get_config()
-    cmd = "{compiler} {md} -o {pdf} --template={template} {defaults} {flags}".format(md=md, pdf=pdf, **config)
+    cmd = "{compiler} {defaults} {md} -o {pdf} --template={template} {flags}".format(md=md, pdf=pdf, **config)
     run(cmd, text=f"Compiling {md}")
 
 
