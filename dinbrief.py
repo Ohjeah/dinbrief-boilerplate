@@ -11,8 +11,6 @@ import yaml
 from click_default_group import DefaultGroup
 from halo import Halo
 
-__version__ = "0.1.0"
-
 THIS_DIR = pathlib.Path(__file__).parent
 CONFIG_DIR = pathlib.Path.home() / ".config/dinbrief"
 
@@ -21,6 +19,7 @@ DEFAULTS = {
     "flags": "--pdf-engine=xelatex",
     "template": THIS_DIR / "template.tex",
     "letter": THIS_DIR / "letter.md",
+    "defaults": "",
 }
 
 logger = logging.getLogger("dinbrief")
