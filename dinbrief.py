@@ -41,11 +41,18 @@ def log(msg, level="info"):
 
 
 def get_config():
+    def find_local_config() -> pathlib.Path:
+        # include the cwd in the parents iterator
+        for dir in (pathlib.Path.cwd() / "fake-file").parents:
+            if (dir / ".dinbrief").is_dir():
+                return dir / ".dinbrief"
+
     def _dir_config(dir):
         config = {}
         user_template = dir / "template.tex"
         user_defaults = dir / "defaults.yml"
         letter = dir / "letter.md"
+        letterhead = dir / "letterhead.tex"
 
         if user_template.exists():
             config["template"] = user_template
@@ -53,11 +60,15 @@ def get_config():
         if user_defaults.exists():
             config["defaults"] = user_defaults
 
+        if letterhead.exists():
+            config["letterhead"] = str(letterhead.resolve())
+
         if letter.exists():
             config["letter"] = letter
+
         return config
 
-    local_config = _dir_config(pathlib.Path.cwd())
+    local_config = _dir_config(find_local_config())
     user_config = _dir_config(pathlib.Path.home() / ".config/dinbrief")
 
     config = ChainMap(local_config, user_config, DEFAULTS)
@@ -97,7 +108,9 @@ def compile(ctx, md, pdf):
         pdf = pathlib.Path(md).with_suffix(".pdf")
 
     config = get_config()
-    cmd = "{compiler} {defaults} {md} -o {pdf} --template={template} {flags}".format(md=md, pdf=pdf, **config)
+    letterhead = config.pop("letterhead", "")
+    letterhead_opt = f"-M letterhead={letterhead}"
+    cmd = f"{config['compiler']} {config['defaults']} {md} -o {pdf} --template={config['template']} {config['flags']} {letterhead_opt}"
     run(cmd, text=f"Compiling {md}")
 
 

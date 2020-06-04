@@ -1,10 +1,15 @@
 [tool.poetry]
-name = "dinbrief"
-version = "0.1.1"
+name = "dinbrief.py"
+version = "0.2.0"
 description = "Dinbrief made easy"
 authors = ["Markus Quade <info@markusqua.de>"]
 include = ["letter.md", "template.tex"]
-url= "https://github.com/ohjeah/dinbrief-boilerplate"
+packages = [
+  { include = "dinbrief.py" }
+]
+
+[tool.poetry.plugins.console_scripts]
+"dinbrief" = "dinbrief:cli"
 
 
 [tool.poetry.dependencies]

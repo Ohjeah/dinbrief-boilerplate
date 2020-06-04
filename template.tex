@@ -1,8 +1,15 @@
 \documentclass[$fontsize$,a4paper]{dinbrief}
+
 \usepackage{fontspec}
 
-\usepackage[ngerman]{babel}
+$if(lang)$
+\usepackage{polyglossia}
+\setmainlanguage{$lang$}
+\disablehyphenation
+$endif$
+
 \usepackage{graphicx}
+\usepackage{fontawesome5}
 
 
 % TYPOGRAPHY
@@ -31,6 +38,7 @@ $if(altfont)$
     \setsansfont{$altfont$}
 $endif$
 \renewcommand{\familydefault}{\rmdefault}
+\raggedright
 
 % PDF SETUP
 %--------------------------------
@@ -65,12 +73,19 @@ $endif$
 
 % \renewcommand{\familydefault}{\sfdefault}
 
+$if(letterhead)$
+\address{
+\input{$letterhead$}
+}
+$else$
 \address{
 \textsf{$author$\\
 $for(addr)$
 $addr$\\
 $endfor$
 }}
+$endif$
+
 \centeraddress
 
 \backaddress{
@@ -106,22 +121,28 @@ $endif$
 
 \begin{document}
 
-\subject{\textbf{$subject$}}
+$if(bottomtext)$
+\bottomtext{\
+\input{$bottomtext$}
+}
+$endif$
 
+\subject{\textbf{$subject$}}
+\date{$if(customdate)$\DTMusedate{customdate}$else$\today$endif$}
 \begin{letter}{
 \textsf{$to_name$ \\
 $to_street$ \\[\medskipamount]
 $to_city$}}
 
 \opening{$opening$}
-\Datum{$if(customdate)$\DTMusedate{customdate}$else$\today$endif$}
+
 
 $body$
 
 
  \IfFileExists{$signature$}
 {
-    \closing[{\includegraphics[scale=1]{$signature$}}]{$closing$}
+    \closing[{\includegraphics[height=1.5\baselineskip]{$signature$}}]{$closing$}
 }
 {
     \closing[]{$closing$}

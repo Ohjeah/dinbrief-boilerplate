@@ -1,3 +1,0 @@
-include template.tex
-include defaults.yml
-include letter.md
