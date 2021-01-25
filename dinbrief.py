@@ -46,6 +46,7 @@ def get_config():
         for dir in (pathlib.Path.cwd() / "fake-file").parents:
             if (dir / ".dinbrief").is_dir():
                 return dir / ".dinbrief"
+        return pathlib.Path("/")
 
     def _dir_config(dir):
         config = {}
@@ -109,7 +110,7 @@ def compile(ctx, md, pdf):
 
     config = get_config()
     letterhead = config.pop("letterhead", "")
-    letterhead_opt = f"-M letterhead={letterhead}"
+    letterhead_opt = f"-M letterhead={letterhead}" if letterhead else ""
     cmd = f"{config['compiler']} {config['defaults']} {md} -o {pdf} --template={config['template']} {config['flags']} {letterhead_opt}"
     run(cmd, text=f"Compiling {md}")
 

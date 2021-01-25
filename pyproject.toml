@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dinbrief.py"
-version = "0.2.0"
+version = "0.2.1"
 description = "Dinbrief made easy"
 authors = ["Markus Quade <info@markusqua.de>"]
 include = ["letter.md", "template.tex"]
