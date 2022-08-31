@@ -111,7 +111,7 @@ def compile(ctx, md, pdf):
     config = get_config()
     letterhead = config.pop("letterhead", "")
     letterhead_opt = f"-M letterhead={letterhead}" if letterhead else ""
-    cmd = f"{config['compiler']} {md} {config['defaults']} -o {pdf} --template={config['template']} {config['flags']} {letterhead_opt}"
+    cmd = f"{config['compiler']} {md} --metadata-file={config['defaults']} -o {pdf} --template={config['template']} {config['flags']} {letterhead_opt}"
     run(cmd, text=f"Compiling {md}")
 
 
